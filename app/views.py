@@ -29,7 +29,7 @@ class SignUp(Resource):
             db.session.commit()
 
             return {'status': 'ok',
-                    'user': new_user.to_dict(rules=('-password', '-id', '-comments', '-store')),
+                    'user': new_user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes')),
                     'token': encode_auth_token(new_user.id, new_user.username).decode()}, 201
         except Exception as e:
             return {'status': 'fail', 'message': str(e)}, 500
@@ -87,7 +87,7 @@ class CreateStore(Resource):
 
             return {'status': 'ok',
                     'store': new_store.to_dict(rules=('-user', '-user_id', '-products')),
-                    'user': user.to_dict(rules=('-password', '-id', '-comments', '-store'))}, 201
+                    'user': user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))}, 201
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
@@ -151,7 +151,7 @@ class CreateProduct(Resource):
 
             return {'status': 'ok',
                     'message': 'The product was added successfully',
-                    'product': new_product.to_dict(rules=('-comments', '-store'))}, 201
+                    'product': new_product.to_dict(rules=('-comments', '-store', '-likes'))}, 201
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
