@@ -48,7 +48,7 @@ class Login(Resource):
                 token = encode_auth_token(user.id, user.username).decode()
 
                 return {'status': 'ok',
-                        'user': user.to_dict(rules=('-password', '-id', '-comments', '-store')),
+                        'user': user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes')),
                         'token': token}, 200
             else:
                 raise Exception('Invalid password or username')
@@ -102,8 +102,8 @@ class GetStore(Resource):
             store = Store.query.get(store_id)
 
             store_dict = store.to_dict(rules=('-products', '-user'))
-            store_dict['user'] = store.user.to_dict(rules=('-password', '-id', '-comments', '-store'))
-            store_dict['products'] = [product.to_dict(rules=('-comments', '-store')) for product in store.products]
+            store_dict['user'] = store.user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))
+            store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in store.products]
 
             return {'status': 'ok',
                     'store': store_dict}, 200
@@ -203,7 +203,7 @@ class GetProduct(Resource):
         try:
             product = Product.query.get(product_id)
 
-            product_dict = product.to_dict(rules=('-comments', '-store'))
+            product_dict = product.to_dict(rules=('-comments', '-store', '-likes'))
             product_dict['comments'] = [comment.to_dict() for comment in product.comments]
             product_dict['store'] = product.store.to_dict(rules=('-products', '-user'))
 
