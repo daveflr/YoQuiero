@@ -103,7 +103,8 @@ class GetStore(Resource):
 
             store_dict = store.to_dict(rules=('-products', '-user'))
             store_dict['user'] = store.user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))
-            store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in store.products]
+            store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in
+                                      store.products]
 
             return {'status': 'ok',
                     'store': store_dict}, 200
@@ -141,7 +142,6 @@ class CreateProduct(Resource):
                                   price=product['price'],
                                   category=product['category'],
                                   date_added=datetime.now(),
-                                  likes_count=0,
                                   image=upload.get('url', 'null'),
                                   store=user.store,
                                   store_id=user.store.id)
@@ -265,23 +265,33 @@ class EditStore(Resource):
 
 
 class LikeProduct(Resource):
-    def get(self, product_id):
+    def post(self, product_id):
         try:
             user = check_user_session(request)
-
             product = Product.query.get(product_id)
+
             if product is None:
                 raise Exception("Product is missing")
 
-            like_product = Like(user_id=user.id,
-                                product_id=product.id)
-            product.likes_count += 1
+            if product.id not in [like.product_id for like in user.likes]:
+                # add like
+                like = Like(user_id=user.id, product_id=product.id)
 
-            db.session.add(like_product)
-            db.session.commit()
+                db.session.add(like)
+                db.session.commit()
 
-            return {'status': 'ok',
-                    'message': 'The like has been created successfully'}, 201
+                return {'status': 'ok',
+                        'message': 'Product liked'}, 201
+            else:
+                # remove like
+                like = Like.query.filter(Like.user_id == user.id, Like.product_id == product_id).first()
+
+                db.session.delete(like)
+                db.session.commit()
+
+                return {'status': 'ok',
+                        'message': 'Product disliked'}, 201
+
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
