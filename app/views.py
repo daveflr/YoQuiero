@@ -3,7 +3,7 @@ from cloudinary import uploader
 from flask_restful import Resource
 from flask import request
 from .app import api, db, app
-from .models import User, Store, Product, Comment, Like
+from .models import User, Store, Product, Comment, Like, CartItem
 from .auth import *
 from dotenv import load_dotenv
 
@@ -300,6 +300,38 @@ class LikeProduct(Resource):
                     'message': str(e)}, 400
 
 
+class AddToCart(Resource):
+    def post(self, product_id, quantity):
+        try:
+            user = check_user_session(request)
+            product = Product.query.get(product_id)
+
+            if product is None:
+                raise Exception("Product is missing")
+
+            for item in user.cart_items:
+                if product == item.product:
+                    return {'status': 'ok',
+                            'message': 'This product is already in you shopping cart'}, 200
+
+            cart_item = CartItem(quantity=quantity)
+            cart_item.user = user
+            cart_item.product = product
+
+            user.cart_items.append(cart_item)
+
+            db.session.commit()
+
+            return {'status': 'ok',
+                    'message': 'This product was added to you shopping cart'}, 201
+        except jwt.ExpiredSignatureError as e:
+            return {'status': 'fail',
+                    'message': str(e)}, 401
+        except Exception as e:
+            return {'status': 'fail',
+                    'message': str(e)}, 400
+
+
 def check_user_session(request_):
     auth_header = request_.headers.get('Authorization')
 
@@ -346,3 +378,4 @@ api.add_resource(CreateProduct, '/api/createProduct')
 api.add_resource(EditProduct, '/api/editProduct/<string:product_id>')
 api.add_resource(GetProduct, '/api/getProduct/<string:product_id>')
 api.add_resource(LikeProduct, '/api/likeProduct/<string:product_id>')
+api.add_resource(AddToCart, '/api/addToCart/<string:product_id>/<int:quantity>')
