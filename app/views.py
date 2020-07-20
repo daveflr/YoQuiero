@@ -3,7 +3,7 @@ from cloudinary import uploader
 from flask_restful import Resource
 from flask import request
 from .app import api, db, app
-from .models import User, Store, Product, Comment, Like
+from .models import User, Store, Product, Comment, Like, CartItem
 from .auth import *
 from dotenv import load_dotenv
 
@@ -29,7 +29,7 @@ class SignUp(Resource):
             db.session.commit()
 
             return {'status': 'ok',
-                    'user': new_user.to_dict(rules=('-password', '-id', '-comments', '-store')),
+                    'user': new_user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes')),
                     'token': encode_auth_token(new_user.id, new_user.username).decode()}, 201
         except Exception as e:
             return {'status': 'fail', 'message': str(e)}, 500
@@ -87,7 +87,7 @@ class CreateStore(Resource):
 
             return {'status': 'ok',
                     'store': new_store.to_dict(rules=('-user', '-user_id', '-products')),
-                    'user': user.to_dict(rules=('-password', '-id', '-comments', '-store'))}, 201
+                    'user': user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))}, 201
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
@@ -103,7 +103,8 @@ class GetStore(Resource):
 
             store_dict = store.to_dict(rules=('-products', '-user'))
             store_dict['user'] = store.user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))
-            store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in store.products]
+            store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in
+                                      store.products]
 
             return {'status': 'ok',
                     'store': store_dict}, 200
@@ -141,7 +142,6 @@ class CreateProduct(Resource):
                                   price=product['price'],
                                   category=product['category'],
                                   date_added=datetime.now(),
-                                  likes_count=0,
                                   image=upload.get('url', 'null'),
                                   store=user.store,
                                   store_id=user.store.id)
@@ -151,7 +151,7 @@ class CreateProduct(Resource):
 
             return {'status': 'ok',
                     'message': 'The product was added successfully',
-                    'product': new_product.to_dict(rules=('-comments', '-store'))}, 201
+                    'product': new_product.to_dict(rules=('-comments', '-store', '-likes'))}, 201
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
@@ -265,23 +265,65 @@ class EditStore(Resource):
 
 
 class LikeProduct(Resource):
-    def get(self, product_id):
+    def post(self, product_id):
         try:
             user = check_user_session(request)
-
             product = Product.query.get(product_id)
+
             if product is None:
                 raise Exception("Product is missing")
 
-            like_product = Like(user_id=user.id,
-                                product_id=product.id)
-            product.likes_count += 1
+            if product.id not in [like.product_id for like in user.likes]:
+                # add like
+                like = Like(user_id=user.id, product_id=product.id)
 
-            db.session.add(like_product)
+                db.session.add(like)
+                db.session.commit()
+
+                return {'status': 'ok',
+                        'message': 'Product liked'}, 201
+            else:
+                # remove like
+                like = Like.query.filter(Like.user_id == user.id, Like.product_id == product_id).first()
+
+                db.session.delete(like)
+                db.session.commit()
+
+                return {'status': 'ok',
+                        'message': 'Product disliked'}, 201
+
+        except jwt.ExpiredSignatureError as e:
+            return {'status': 'fail',
+                    'message': str(e)}, 401
+        except Exception as e:
+            return {'status': 'fail',
+                    'message': str(e)}, 400
+
+
+class AddToCart(Resource):
+    def post(self, product_id, quantity):
+        try:
+            user = check_user_session(request)
+            product = Product.query.get(product_id)
+
+            if product is None:
+                raise Exception("Product is missing")
+
+            for item in user.cart_items:
+                if product == item.product:
+                    return {'status': 'ok',
+                            'message': 'This product is already in you shopping cart'}, 200
+
+            cart_item = CartItem(quantity=quantity)
+            cart_item.user = user
+            cart_item.product = product
+
+            user.cart_items.append(cart_item)
+
             db.session.commit()
 
             return {'status': 'ok',
-                    'message': 'The like has been created successfully'}, 201
+                    'message': 'This product was added to you shopping cart'}, 201
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
@@ -336,3 +378,4 @@ api.add_resource(CreateProduct, '/api/createProduct')
 api.add_resource(EditProduct, '/api/editProduct/<string:product_id>')
 api.add_resource(GetProduct, '/api/getProduct/<string:product_id>')
 api.add_resource(LikeProduct, '/api/likeProduct/<string:product_id>')
+api.add_resource(AddToCart, '/api/addToCart/<string:product_id>/<int:quantity>')
