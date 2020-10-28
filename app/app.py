@@ -5,6 +5,7 @@ from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -19,6 +20,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 api = Api(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+CORS(app)
 
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
