@@ -21,6 +21,8 @@ class SignUp(Resource):
     def post(self):
         try:
             data = request.form
+            print(request)
+            print(data)
             new_user = User(username=data['username'],
                             email=data['email'],
                             name=data['name'],
@@ -34,7 +36,6 @@ class SignUp(Resource):
                     'token': encode_auth_token(new_user.id, new_user.username).decode()}, 201
         except Exception as e:
             print(str(e))
-            print(e)
             return {'status': 'fail', 'message': str(e)}, 500
 
 
@@ -42,6 +43,8 @@ class Login(Resource):
     def post(self):
         try:
             data = request.form
+            print(request)
+            print(data)
             user = User.query.filter_by(email=data['email']).first()
 
             if user is None:
