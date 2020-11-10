@@ -39,7 +39,6 @@ class Login(Resource):
     def post(self):
         try:
             data = request.form
-            user = User.query.filter_by(username=data['username']).first()
             user = User.query.filter_by(username=data['email']).first()
 
             if user is None:
