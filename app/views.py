@@ -69,7 +69,7 @@ class CreateStore(Resource):
         try:
             user = check_user_session(request)
 
-            store = request.data
+            store = request.json
 
             new_store = Store(name=store['name'],
                               category=store['category'],
@@ -135,7 +135,7 @@ class CreateProduct(Resource):
                                                unique_filename=True,
                                                folder='product')
 
-            product = request.data
+            product = request.json
 
             new_product = Product(name=product['name'],
                                   description=product['description'],
@@ -184,10 +184,10 @@ class EditProduct(Resource):
                                                folder='product')
                 product.image = upload['url']
 
-            product.name = request.data.get('name', product.name)
-            product.description = request.data.get('description', product.description)
-            product.price = float(request.data.get('price', product.price))
-            product.category = request.data.get('category', product.category)
+            product.name = request.json.get('name', product.name)
+            product.description = request.json.get('description', product.description)
+            product.price = float(request.json.get('price', product.price))
+            product.category = request.json.get('category', product.category)
 
             db.session.commit()
 
@@ -250,10 +250,10 @@ class EditStore(Resource):
 
                 user.store.background_picture = upload['url']
 
-            user.store.name = request.data.get('name', user.store.name)
-            user.store.category = request.data.get('category', user.store.category)
-            user.store.description = request.data.get('description', user.store.description)
-            user.store.departamento = request.data.get('departamento', user.store.departamento)
+            user.store.name = request.json.get('name', user.store.name)
+            user.store.category = request.json.get('category', user.store.category)
+            user.store.description = request.json.get('description', user.store.description)
+            user.store.departamento = request.json.get('departamento', user.store.departamento)
 
             db.session.commit()
 
