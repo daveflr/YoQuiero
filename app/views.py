@@ -33,6 +33,8 @@ class SignUp(Resource):
                     'user': new_user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes')),
                     'token': encode_auth_token(new_user.id, new_user.username).decode()}, 201
         except Exception as e:
+            print(str(e))
+            print(e)
             return {'status': 'fail', 'message': str(e)}, 500
 
 
