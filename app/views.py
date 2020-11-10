@@ -6,6 +6,7 @@ from .app import api, db, app
 from .models import User, Store, Product, Comment, Like, CartItem
 from .auth import *
 from dotenv import load_dotenv
+from sqlalchemy.exc import IntegrityError
 
 load_dotenv()
 
@@ -91,6 +92,8 @@ class CreateStore(Resource):
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
+        except IntegrityError as e:
+            return {'status': 'fail', 'message': 'A user can only have a store'}, 400
         except Exception as e:
             print(str(e))
             return {'status': 'fail', 'message': str(e)}, 400
