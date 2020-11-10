@@ -40,9 +40,10 @@ class Login(Resource):
         try:
             data = request.form
             user = User.query.filter_by(username=data['username']).first()
+            user = User.query.filter_by(username=data['email']).first()
 
             if user is None:
-                raise Exception('Invalid username')
+                raise Exception('Invalid username or email')
 
             if check_password_hash(data['password'], user.password):
                 token = encode_auth_token(user.id, user.username).decode()
@@ -69,7 +70,7 @@ class CreateStore(Resource):
         try:
             user = check_user_session(request)
 
-            store = request.form
+            store = request.data
 
             new_store = Store(name=store['name'],
                               category=store['category'],
@@ -135,7 +136,7 @@ class CreateProduct(Resource):
                                                unique_filename=True,
                                                folder='product')
 
-            product = request.form
+            product = request.data
 
             new_product = Product(name=product['name'],
                                   description=product['description'],
@@ -184,10 +185,10 @@ class EditProduct(Resource):
                                                folder='product')
                 product.image = upload['url']
 
-            product.name = request.form.get('name', product.name)
-            product.description = request.form.get('description', product.description)
-            product.price = float(request.form.get('price', product.price))
-            product.category = request.form.get('category', product.category)
+            product.name = request.data.get('name', product.name)
+            product.description = request.data.get('description', product.description)
+            product.price = float(request.data.get('price', product.price))
+            product.category = request.data.get('category', product.category)
 
             db.session.commit()
 
@@ -250,10 +251,10 @@ class EditStore(Resource):
 
                 user.store.background_picture = upload['url']
 
-            user.store.name = request.form.get('name', user.store.name)
-            user.store.category = request.form.get('category', user.store.category)
-            user.store.description = request.form.get('description', user.store.description)
-            user.store.departamento = request.form.get('departamento', user.store.departamento)
+            user.store.name = request.data.get('name', user.store.name)
+            user.store.category = request.data.get('category', user.store.category)
+            user.store.description = request.data.get('description', user.store.description)
+            user.store.departamento = request.data.get('departamento', user.store.departamento)
 
             db.session.commit()
 
