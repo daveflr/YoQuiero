@@ -230,12 +230,17 @@ class GetProduct(Resource):
 
 
 class EditStore(Resource):
-    def put(self, store_id):
+    def put(self):
         try:
             user = check_user_session(request)
 
             if user.store is None:
                 raise Exception("You need to create a Store first")
+
+            store_id = request.args.get('store_id')
+
+            if store_id is None:
+                raise Exception("You must indicate the ID of the Store")
 
             if user.store.id != int(store_id):
                 raise Exception("You dont have permissions to edit this Store")
@@ -262,15 +267,21 @@ class EditStore(Resource):
 
                 user.store.background_picture = upload['url']
 
-            user.store.name = request.json.get('name', user.store.name)
-            user.store.category = request.json.get('category', user.store.category)
-            user.store.description = request.json.get('description', user.store.description)
-            user.store.departamento = request.json.get('departamento', user.store.departamento)
+            user.store.name = request.form.get('name', user.store.name)
+            user.store.category = request.form.get('category', user.store.category)
+            user.store.description = request.form.get('description', user.store.description)
+            user.store.departamento = request.form.get('departamento', user.store.departamento)
 
             db.session.commit()
 
+            store_dict = user.store.to_dict(rules=('-products', '-user'))
+            # store_dict['user'] = user.store.user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))
+            # store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in
+            #                           user.store.products]
+
             return {'status': 'ok',
-                    'message': 'All changes saved'}, 200
+                    'message': 'All changes saved',
+                    'store': store_dict}, 200
         except Exception as e:
             return {'status': 'fail',
                     'message': str(e)}, 400
@@ -385,7 +396,7 @@ api.add_resource(Login, '/api/login')
 # api.add_resource(Logout, '/api/logout')
 api.add_resource(CreateStore, '/api/createStore')
 api.add_resource(GetStore, '/api/getStore')
-api.add_resource(EditStore, '/api/editStore/<string:store_id>')
+api.add_resource(EditStore, '/api/editStore')
 api.add_resource(CreateProduct, '/api/createProduct')
 api.add_resource(EditProduct, '/api/editProduct/<string:product_id>')
 api.add_resource(GetProduct, '/api/getProduct/<string:product_id>')
