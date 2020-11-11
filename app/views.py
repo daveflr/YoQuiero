@@ -105,8 +105,12 @@ class CreateStore(Resource):
 
 
 class GetStore(Resource):
-    def get(self, store_id):
+    def get(self):
         try:
+            store_id = request.args.get('store_id')
+            if store_id is None:
+                raise Exception("You must indicate the ID of the Store")
+
             store = Store.query.get(store_id)
 
             store_dict = store.to_dict(rules=('-products', '-user'))
@@ -380,7 +384,7 @@ api.add_resource(SignUp, '/api/signup')
 api.add_resource(Login, '/api/login')
 # api.add_resource(Logout, '/api/logout')
 api.add_resource(CreateStore, '/api/createStore')
-api.add_resource(GetStore, '/api/getStore/<string:store_id>')
+api.add_resource(GetStore, '/api/getStore')
 api.add_resource(EditStore, '/api/editStore/<string:store_id>')
 api.add_resource(CreateProduct, '/api/createProduct')
 api.add_resource(EditProduct, '/api/editProduct/<string:product_id>')
