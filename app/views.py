@@ -211,16 +211,17 @@ class EditProduct(Resource):
 
 
 class GetProduct(Resource):
-    def get(self, product_id):
+    def get(self):
         try:
+            product_id = request.args.get('product_id')
             product = Product.query.get(product_id)
 
-            product_dict = product.to_dict(rules=('-comments', '-store', '-likes'))
+            product_dict = product.to_dict(rules=('-comments', '-store', '-likes', '-users'))
             product_dict['comments'] = [comment.to_dict() for comment in product.comments]
             product_dict['store'] = product.store.to_dict(rules=('-products', '-user'))
 
             return {'status': 'ok',
-                    'store': product_dict}, 200
+                    'product': product_dict}, 200
         except AttributeError as e:
             return {'status': 'fail',
                     'message': 'This product does not exists'}, 404
@@ -399,6 +400,6 @@ api.add_resource(GetStore, '/api/getStore')
 api.add_resource(EditStore, '/api/editStore')
 api.add_resource(CreateProduct, '/api/createProduct')
 api.add_resource(EditProduct, '/api/editProduct')
-api.add_resource(GetProduct, '/api/getProduct/<string:product_id>')
+api.add_resource(GetProduct, '/api/getProduct')
 api.add_resource(LikeProduct, '/api/likeProduct/<string:product_id>')
 api.add_resource(AddToCart, '/api/addToCart/<string:product_id>/<int:quantity>')
