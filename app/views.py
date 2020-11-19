@@ -147,7 +147,7 @@ class CreateProduct(Resource):
                                                unique_filename=True,
                                                folder='product')
 
-            product = request.json
+            product = request.form
 
             new_product = Product(name=product['name'],
                                   description=product['description'],
@@ -163,7 +163,7 @@ class CreateProduct(Resource):
 
             return {'status': 'ok',
                     'message': 'The product was added successfully',
-                    'product': new_product.to_dict(rules=('-comments', '-store', '-likes'))}, 201
+                    'product': new_product.to_dict(rules=('-comments', '-store', '-likes', '-users'))}, 201
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
                     'message': str(e)}, 401
