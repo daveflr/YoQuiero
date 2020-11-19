@@ -21,8 +21,6 @@ class SignUp(Resource):
     def post(self):
         try:
             data = request.form
-            print(request)
-            print(data)
             new_user = User(username=data['username'],
                             email=data['email'],
                             name=data['name'],
@@ -43,8 +41,6 @@ class Login(Resource):
     def post(self):
         try:
             data = request.form
-            print(request)
-            print(data)
             user = User.query.filter_by(email=data['email']).first()
 
             if user is None:
@@ -173,12 +169,14 @@ class CreateProduct(Resource):
 
 
 class EditProduct(Resource):
-    def put(self, product_id):
+    def put(self):
         try:
             user = check_user_session(request)
 
             if user.store is None:
                 raise Exception("You need to create a Store first")
+
+            product_id = request.args.get('product_id')
 
             product = Product.query.get(int(product_id))
 
@@ -196,15 +194,17 @@ class EditProduct(Resource):
                                                folder='product')
                 product.image = upload['url']
 
-            product.name = request.json.get('name', product.name)
-            product.description = request.json.get('description', product.description)
-            product.price = float(request.json.get('price', product.price))
-            product.category = request.json.get('category', product.category)
+            new_product = request.form
+            product.name = new_product.get('name', product.name)
+            product.description = new_product.get('description', product.description)
+            product.price = float(new_product.get('price', product.price))
+            product.category = new_product.get('category', product.category)
 
             db.session.commit()
 
             return {'status': 'ok',
-                    'message': 'All changes saved'}, 200
+                    'message': 'All changes saved',
+                    'product': product.to_dict(rules=('-comments', '-store', '-likes', '-users'))}, 200
         except Exception as e:
             return {'status': 'fail',
                     'message': str(e)}, 400
@@ -398,7 +398,7 @@ api.add_resource(CreateStore, '/api/createStore')
 api.add_resource(GetStore, '/api/getStore')
 api.add_resource(EditStore, '/api/editStore')
 api.add_resource(CreateProduct, '/api/createProduct')
-api.add_resource(EditProduct, '/api/editProduct/<string:product_id>')
+api.add_resource(EditProduct, '/api/editProduct')
 api.add_resource(GetProduct, '/api/getProduct/<string:product_id>')
 api.add_resource(LikeProduct, '/api/likeProduct/<string:product_id>')
 api.add_resource(AddToCart, '/api/addToCart/<string:product_id>/<int:quantity>')
