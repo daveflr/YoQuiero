@@ -327,9 +327,13 @@ class LikeProduct(Resource):
 
 
 class AddToCart(Resource):
-    def post(self, product_id, quantity):
+    def post(self):
         try:
             user = check_user_session(request)
+
+            product_id = request.args.get('product_id')
+            quantity = request.args.get('quantity')
+
             product = Product.query.get(product_id)
 
             if product is None:
@@ -404,4 +408,4 @@ api.add_resource(CreateProduct, '/api/createProduct')
 api.add_resource(EditProduct, '/api/editProduct')
 api.add_resource(GetProduct, '/api/getProduct')
 api.add_resource(LikeProduct, '/api/likeProduct')
-api.add_resource(AddToCart, '/api/addToCart/<string:product_id>/<int:quantity>')
+api.add_resource(AddToCart, '/api/addToCart')
