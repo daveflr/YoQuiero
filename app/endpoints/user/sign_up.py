@@ -10,11 +10,15 @@ class SignUp(Resource):
     def post(self):
         try:
             data = request.form
-            new_user = User(username=data.get('username', None),
-                            email=data['email'],
-                            name=data['name'],
-                            last_name=data['last_name'],
-                            password=generate_password_hash(data.get('password', None)))
+            new_user = User(
+                username=data.get('username', None),
+                email=data['email'],
+                name=data['name'],
+                last_name=data['last_name'],
+                password=generate_password_hash(
+                    data.get('password', None)
+                )
+            )
             db.session.add(new_user)
             db.session.commit()
 

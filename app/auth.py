@@ -35,6 +35,8 @@ def decode_auth_token(token):
 
 
 def generate_password_hash(password):
+    if not password:
+        return None
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode(), salt)
 
