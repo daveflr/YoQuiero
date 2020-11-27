@@ -16,9 +16,12 @@ class Login(Resource):
 
             if check_password_hash(data['password'], user.password):
                 token = encode_auth_token(user.id, user.username).decode()
-
+                user_ = user.to_dict(
+                    rules=(
+                        '-password', '-id', '-comments', '-store', '-likes', '-cart_items'
+                    ))
                 return {'status': 'ok',
-                        'user': user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes')),
+                        'user': user_,
                         'token': token}, 200
             else:
                 raise Exception('Invalid password or username')
