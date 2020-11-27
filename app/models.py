@@ -19,11 +19,11 @@ class CartItem(db.Model, SerializerMixin):
 
 class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, unique=True, nullable=False)
+    username = db.Column(db.String, unique=True)
     email = db.Column(db.String, unique=True, nullable=False)
     name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
-    password = db.Column(db.Text, nullable=False)
+    password = db.Column(db.Text)
 
     # User can make many comments
     comments = db.relationship('Comment', back_populates='user', lazy=True)
