@@ -289,9 +289,11 @@ class EditStore(Resource):
 
 
 class LikeProduct(Resource):
-    def post(self, product_id):
+    def post(self):
         try:
             user = check_user_session(request)
+            product_id = request.args.get('product_id')
+
             product = Product.query.get(product_id)
 
             if product is None:
@@ -401,5 +403,5 @@ api.add_resource(EditStore, '/api/editStore')
 api.add_resource(CreateProduct, '/api/createProduct')
 api.add_resource(EditProduct, '/api/editProduct')
 api.add_resource(GetProduct, '/api/getProduct')
-api.add_resource(LikeProduct, '/api/likeProduct/<string:product_id>')
+api.add_resource(LikeProduct, '/api/likeProduct')
 api.add_resource(AddToCart, '/api/addToCart/<string:product_id>/<int:quantity>')
