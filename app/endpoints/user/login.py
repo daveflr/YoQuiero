@@ -15,7 +15,7 @@ class Login(Resource):
                 raise Exception('Invalid username or email')
 
             if check_password_hash(data['password'], user.password):
-                token = encode_auth_token(user.id, user.username).decode()
+                token = encode_auth_token(user.id, user.email).decode()
                 user_ = user.to_dict(
                     rules=(
                         '-password', '-id', '-comments', '-store', '-likes', '-cart_items'

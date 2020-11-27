@@ -20,7 +20,7 @@ class SignUp(Resource):
 
             return {'status': 'ok',
                     'user': new_user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes')),
-                    'token': encode_auth_token(new_user.id, new_user.username).decode()}, 201
+                    'token': encode_auth_token(new_user.id, new_user.email).decode()}, 201
         except Exception as e:
             print(str(e))
             return {'status': 'fail', 'message': str(e)}, 500
