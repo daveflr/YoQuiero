@@ -50,8 +50,8 @@ class Store(db.Model, SerializerMixin):
     category_id = db.Column(db.Integer, db.ForeignKey('store_category.id'))
     category = db.relationship('StoreCategory', uselist=False, back_populates='store_categories')
 
-    departament_id = db.Column(db.Integer, db.ForeignKey('department.id'))
-    departament = db.relationship('Department', uselist=False, back_populates='store_departments')
+    departament_id = db.Column(db.Integer, db.ForeignKey('departament.id'))
+    departament = db.relationship('Departament', uselist=False, back_populates='store_departaments')
 
     # A store can only have a User
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -130,8 +130,8 @@ class StoreCategory(db.Model, SerializerMixin):
     store_categories = db.relationship("Store", back_populates="category", lazy=True)
 
 
-class Department(db.Model, SerializerMixin):
+class Departament(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
 
-    store_departments = db.relationship("Store", back_populates="department", lazy=True)
+    store_departaments = db.relationship("Store", back_populates="departament", lazy=True)

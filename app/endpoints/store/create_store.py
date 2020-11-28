@@ -18,7 +18,7 @@ class CreateStore(Resource):
             new_store = Store(name=store['name'],
                               category_id=store['category'],
                               description=store['description'],
-                              departamento=store['departamento'],
+                              departament_id=int(store['departament']),
                               email=store['email'],
                               phone_number=store['phone_number'],
                               user=user,
@@ -32,7 +32,7 @@ class CreateStore(Resource):
             db.session.commit()
 
             return {'status': 'ok',
-                    'store': new_store.to_dict(rules=('-user', '-user_id', '-products', '-category')),
+                    'store': new_store.to_dict(rules=('-user', '-user_id', '-products', '-category', '-departament')),
                     'user': user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))}, 201
         except jwt.ExpiredSignatureError as e:
             return {'status': 'fail',
