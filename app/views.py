@@ -1,16 +1,8 @@
-import os
-import cloudinary as cloud
 from app import api
 from dotenv import load_dotenv
 from app.endpoints import *
 
 load_dotenv()
-
-cloud.config.update = ({
-    'cloud_name': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'api_key': os.environ.get('CLOUDINARY_API_KEY'),
-    'api_secret': os.environ.get('CLOUDINARY_API_SECRET')
-})
 
 # ENDPOINTS
 api.add_resource(SignUp, '/api/signup')

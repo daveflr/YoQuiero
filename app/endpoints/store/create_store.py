@@ -1,6 +1,7 @@
 import jwt
 from flask import request
 from flask_restful import Resource
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models import Store

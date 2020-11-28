@@ -1,9 +1,17 @@
+import os
 from flask import request
 from flask_restful import Resource
+import cloudinary as cloud
+from cloudinary import uploader
 
-from app import  db
-from app.views import cloud
+from app import db
 from app.endpoints.utils import check_user_session, validate_picture
+
+cloud.config.update = ({
+    'cloud_name': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'api_key': os.environ.get('CLOUDINARY_API_KEY'),
+    'api_secret': os.environ.get('CLOUDINARY_API_SECRET')
+})
 
 
 class EditStore(Resource):

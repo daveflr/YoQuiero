@@ -62,7 +62,9 @@ class Product(db.Model, SerializerMixin):
 
     price = db.Column(db.Float, nullable=False)
 
-    category = db.Column(db.String, nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category = db.relationship('Category', uselist=False, back_populates='products')
+
     date_added = db.Column(db.DateTime, nullable=False)
     image = db.Column(db.String, nullable=False)
 
@@ -106,3 +108,10 @@ class Like(db.Model, SerializerMixin):
     # A like only have a Product
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     product = db.relationship('Product', back_populates='likes')
+
+
+class Category(db.Model, SerializerMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+
+    products = db.relationship("Product", back_populates="category", lazy=True)
