@@ -5,7 +5,7 @@ from cloudinary import uploader
 import cloudinary as cloud
 
 from app import db
-from app.models import Product
+from app.models import Product, Category
 from app.endpoints.utils import check_user_session, validate_picture
 
 cloud.config.update = ({
@@ -42,16 +42,17 @@ class EditProduct(Resource):
                 product.image = upload['url']
 
             new_product = request.form
+            new_category = Category.query.get(int(new_product.get('category')))
             product.name = new_product.get('name', product.name)
             product.description = new_product.get('description', product.description)
             product.price = float(new_product.get('price', product.price))
-            product.category = new_product.get('category', product.category)
+            product.category = new_category
 
             db.session.commit()
 
             return {'status': 'ok',
                     'message': 'All changes saved',
-                    'product': product.to_dict(rules=('-comments', '-store', '-likes', '-users'))}, 200
+                    'product': product.to_dict(rules=('-comments', '-store', '-likes', '-users', '-category'))}, 200
         except Exception as e:
             return {'status': 'fail',
                     'message': str(e)}, 400
