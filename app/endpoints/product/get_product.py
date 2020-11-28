@@ -10,7 +10,7 @@ class GetProduct(Resource):
             product_id = request.args.get('product_id')
             product = Product.query.get(product_id)
 
-            product_dict = product.to_dict(rules=('-comments', '-store', '-likes', '-users'))
+            product_dict = product.to_dict(rules=('-comments', '-store', '-likes', '-users', '-category'))
             product_dict['comments'] = [comment.to_dict() for comment in product.comments]
             product_dict['store'] = product.store.to_dict(rules=('-products', '-user'))
 
