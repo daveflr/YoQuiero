@@ -13,10 +13,10 @@ class GetStore(Resource):
 
             store = Store.query.get(store_id)
 
-            store_dict = store.to_dict(rules=('-products', '-user'))
+            store_dict = store.to_dict(rules=('-products', '-user', '-category'))
             store_dict['user'] = store.user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))
-            store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in
-                                      store.products]
+            store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes', '-category')) for product
+                                      in store.products]
 
             return {'status': 'ok',
                     'store': store_dict}, 200

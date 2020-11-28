@@ -53,13 +53,13 @@ class EditStore(Resource):
                 user.store.background_picture = upload['url']
 
             user.store.name = request.form.get('name', user.store.name)
-            user.store.category = request.form.get('category', user.store.category)
+            user.store.category_id = int(request.form.get('category', user.store.category))
             user.store.description = request.form.get('description', user.store.description)
             user.store.departamento = request.form.get('departamento', user.store.departamento)
 
             db.session.commit()
 
-            store_dict = user.store.to_dict(rules=('-products', '-user'))
+            store_dict = user.store.to_dict(rules=('-products', '-user', '-category'))
             # store_dict['user'] = user.store.user.to_dict(rules=('-password', '-id', '-comments', '-store', '-likes'))
             # store_dict['products'] = [product.to_dict(rules=('-comments', '-store', '-likes')) for product in
             #                           user.store.products]

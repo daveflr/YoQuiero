@@ -41,11 +41,15 @@ class User(db.Model, SerializerMixin):
 class Store(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    category = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     departamento = db.Column(db.String, nullable=False)
     profile_picture = db.Column(db.String, nullable=True)
     background_picture = db.Column(db.String, nullable=True)
+    email = db.Column(db.String, nullable=True)
+    phone_number = db.Column(db.String, nullable=True)
+
+    category_id = db.Column(db.Integer, db.ForeignKey('store_category.id'))
+    category = db.relationship('StoreCategory', uselist=False, back_populates='store_categories')
 
     # A store can only have a User
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -115,3 +119,10 @@ class Category(db.Model, SerializerMixin):
     name = db.Column(db.String, nullable=False)
 
     products = db.relationship("Product", back_populates="category", lazy=True)
+
+
+class StoreCategory(db.Model, SerializerMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+
+    store_categories = db.relationship("Store", back_populates="category", lazy=True)
