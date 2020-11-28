@@ -12,7 +12,7 @@ class GetProduct(Resource):
 
             product_dict = product.to_dict(rules=('-comments', '-store', '-likes', '-users', '-category'))
             product_dict['comments'] = [comment.to_dict() for comment in product.comments]
-            product_dict['store'] = product.store.to_dict(rules=('-products', '-user'))
+            product_dict['store'] = product.store.to_dict(rules=('-products', '-user', '-category', '-departament'))
 
             return {'status': 'ok',
                     'product': product_dict}, 200
